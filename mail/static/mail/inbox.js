@@ -147,14 +147,20 @@ function compose_email(mail_id=null) {
           .then(result => {
               // Print result
               console.log(result);
+              if (result.error) {
+                  alert(result.error)
+              } else {
+                    document.querySelector('#compose-recipients').value = '';
+                    document.querySelector('#compose-subject').value = '';
+                    document.querySelector('#compose-body').value = '';
+                    load_mailbox('inbox');
+              }
           });
   })
 
 
   // Clear out composition fields
-  document.querySelector('#compose-recipients').value = '';
-  document.querySelector('#compose-subject').value = '';
-  document.querySelector('#compose-body').value = '';
+
 }
 
 function load_mailbox(mailbox) {

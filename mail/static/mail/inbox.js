@@ -16,8 +16,32 @@ document.addEventListener('click', event => {
                    showMail(element.dataset.id)
                 } else if (element.className === 'unread'){
                     markUnread(element.parentElement)
+                } else if (element.className === 'archive'){
+                        archiveMail(element.parentElement)
+                } else if (element.className === 'unarchive'){
+                        unarchiveMail(element.parentElement)
                 }
                 })
+
+function unarchiveMail(element) {
+fetch(`/emails/${element.dataset.id}`, {
+  method: 'PUT',
+  body: JSON.stringify({
+      archived: false
+  })
+})
+  load_mailbox('inbox')
+}
+
+function archiveMail(element) {
+ fetch(`/emails/${element.dataset.id}`, {
+  method: 'PUT',
+  body: JSON.stringify({
+      archived: true
+  })
+})
+  load_mailbox('inbox')
+}
 
 function markUnread(element) {
         fetch(`/emails/${element.dataset.id}`, {
@@ -117,10 +141,16 @@ function load_mailbox(mailbox) {
      const mail = document.createElement('div');
                 mail.className = 'mail';
                 mail.dataset.id = email.id
+
                 if (mailbox === 'inbox') {
-                    mail.innerHTML = `${email.sender} ${email.subject} ${email.timestamp} <button class="unread">Unread</button>`;
+                    mail.innerHTML = `${email.sender} ${email.subject} ${email.timestamp} 
+                                            <button class="unread">Unread</button>
+                                            <button class="archive">Archive</button>`;
                 } else if (mailbox === 'sent'){
                     mail.innerHTML = `${email.recipients} ${email.subject} ${email.timestamp}`;
+                } else if (mailbox === 'archive'){
+                    mail.innerHTML = `${email.sender} ${email.subject} ${email.timestamp} 
+                                            <button class="unarchive">Unarchive</button>`
                 }
                 if (email.read) {
                     mail.style.backgroundColor = 'gray'

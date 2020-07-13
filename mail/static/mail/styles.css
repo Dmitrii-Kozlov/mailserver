@@ -2,10 +2,10 @@ textarea {
     min-height: 400px;
 }
 .mail {
-                background-color: #77dd11;
+                background-color: white;
                 padding: 20px;
                 margin-bottom: 10px;
-                border: 1px;
+                border: solid;
             }
 .unread, .unarchive, .archive {
     float: right;

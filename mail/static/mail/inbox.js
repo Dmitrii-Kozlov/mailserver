@@ -20,6 +20,8 @@ document.addEventListener('click', event => {
                         archiveMail(element.parentElement)
                 } else if (element.className === 'unarchive'){
                         unarchiveMail(element.parentElement)
+                } else if (element.id === 'reply') {
+                    compose_email(element.dataset.id)
                 }
                 })
 
@@ -50,7 +52,7 @@ function markUnread(element) {
       read: false
   })
 })
-element.style.backgroundColor = '#77dd11'
+element.style.backgroundColor = 'white'
 }
 
   function showMail(id) {
@@ -66,12 +68,18 @@ element.style.backgroundColor = '#77dd11'
     const mail_sender = document.createElement('div');
                 mail_sender.innerHTML = `From: ${email.sender} `;
     const mail_title = document.createElement('div');
-                mail_title.innerHTML = `Subject: ${email.subject} <br> <hr>`;
+                mail_title.innerHTML = `Subject: ${email.subject} <br>`;
     const mail_text = document.createElement('div');
-                mail_text.innerHTML = `${email.body}`;
+                mail_text.innerHTML = `<hr> ${email.body}`;
+    const reply_button = document.createElement('button');
+                reply_button.innerHTML = `Reply`;
+                reply_button.className = 'btn btn-sm btn-outline-primary'
+                reply_button.id = 'reply'
+                reply_button.dataset.id = email.id
                 // Add mail to DOM
     document.querySelector('#emails-view').append(mail_sender);
     document.querySelector('#emails-view').append(mail_title);
+     document.querySelector('#emails-view').append(reply_button);
     document.querySelector('#emails-view').append(mail_text);
 
 })
@@ -84,12 +92,22 @@ element.style.backgroundColor = '#77dd11'
 
   }
 
-function compose_email() {
+function compose_email(id) {
 
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
 
+  if (id) {
+      fetch(`/emails/${id}`)
+.then(response => response.json())
+.then(email => {
+    document.querySelector('#compose-recipients').value = email.sender;
+    document.querySelector('#compose-subject').value = `Re: ${email.subject}`;
+    document.querySelector('#compose-body').value = `On ${email.timestamp} ${email.sender} wrote:
+     ${email.body}`
+})
+  }
   document.querySelector('#send_mail').addEventListener('click', () => {
 
   const recipients = document.querySelector('#compose-recipients').value;
@@ -143,13 +161,13 @@ function load_mailbox(mailbox) {
                 mail.dataset.id = email.id
 
                 if (mailbox === 'inbox') {
-                    mail.innerHTML = `${email.sender} ${email.subject} ${email.timestamp} 
+                    mail.innerHTML = `From "${email.sender}" subject "${email.subject}" on ${email.timestamp} 
                                             <button class="unread">Unread</button>
                                             <button class="archive">Archive</button>`;
                 } else if (mailbox === 'sent'){
-                    mail.innerHTML = `${email.recipients} ${email.subject} ${email.timestamp}`;
+                    mail.innerHTML = `To "${email.recipients}" subject ${email.subject} on ${email.timestamp}`;
                 } else if (mailbox === 'archive'){
-                    mail.innerHTML = `${email.sender} ${email.subject} ${email.timestamp} 
+                    mail.innerHTML = `From "${email.sender}" subject ${email.subject} on ${email.timestamp} 
                                             <button class="unarchive">Unarchive</button>`
                 }
                 if (email.read) {

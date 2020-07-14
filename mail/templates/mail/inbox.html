@@ -34,4 +34,27 @@
 
 {% block script %}
     <script src="{% static 'mail/inbox.js' %}"></script>
+    <script src="{% static 'mail/handlebars.js' %}"></script>
+{% verbatim %}
+    <script id="mail_preview" type="text/x-handlebars-template">
+        {{#if read}}
+        <div class="mail card text-white bg-dark mb-3" style="max-width: 36rem;">
+        {{else}}
+        <div class="mail card bg-light mb-3" style="max-width: 36rem;">
+        {{/if}}
+            <div class="card-header">{{sender}} {{timestamp}}
+                {{#if unread_button}}
+            <button class="unread btn btn-primary">Unread</button>
+              {{/if}}
+                </div>
+            <div class="card-body">
+                <h5 class="card-title">{{title}}</h5>
+                <button class="readmore btn btn-primary">Read more</button>
+                {{#if archive_class}}
+                <button class="{{archive_class}}">{{archive_title}}</button>
+                {{/if}}
+            </div>
+        </div>
+        </script>
+{% endverbatim %}
 {% endblock %}

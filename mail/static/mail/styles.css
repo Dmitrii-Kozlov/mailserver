@@ -5,7 +5,6 @@ textarea {
                 background-color: white;
                 padding: 20px;
                 margin-bottom: 10px;
-                border: solid;
                 animation-name: archive;
                 animation-duration: 2s;
                 animation-fill-mode: forwards;

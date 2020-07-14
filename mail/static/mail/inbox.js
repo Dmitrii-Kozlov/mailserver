@@ -12,14 +12,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 document.addEventListener('click', event => {
                 const element = event.target;
-                if (element.className === 'mail') {
-                   showMail(element.dataset.id)
-                } else if (element.className === 'unread'){
-                    markUnread(element.parentElement)
-                } else if (element.className === 'archive'){
-                        archiveMail(element.parentElement)
-                } else if (element.className === 'unarchive'){
-                        unarchiveMail(element.parentElement)
+                if (element.className === 'readmore btn btn-primary') {
+                   showMail(element.parentElement.parentElement.parentElement.dataset.id)
+                } else if (element.className === 'unread btn btn-primary'){
+                    markUnread(element.parentElement.parentElement)
+                } else if (element.className === 'archive btn btn-primary'){
+                        archiveMail(element.parentElement.parentElement.parentElement)
+                } else if (element.className === 'unarchive btn btn-primary'){
+                        unarchiveMail(element.parentElement.parentElement.parentElement)
                 }
                 if (element.id === 'reply') {
                     compose_email(element.dataset.id)
@@ -55,13 +55,13 @@ function archiveMail(element) {
 }
 
 function markUnread(element) {
-        fetch(`/emails/${element.dataset.id}`, {
+        fetch(`/emails/${element.parentElement.dataset.id}`, {
   method: 'PUT',
   body: JSON.stringify({
       read: false
   })
 })
-element.style.backgroundColor = 'white'
+element.className = 'mail card bg-light mb-3'
 }
 
   function showMail(id) {
@@ -183,25 +183,44 @@ function load_mailbox(mailbox) {
     emails.forEach(addEmail)
 });
   function addEmail(email) {
-     const mail = document.createElement('div');
-                mail.className = 'mail';
-                mail.dataset.id = email.id
+      const mail_template = Handlebars.compile(document.querySelector('#mail_preview').innerHTML);
+      console.log(email.id)
 
-                if (mailbox === 'inbox') {
-                    mail.innerHTML = `From "${email.sender}" subject "${email.subject}" on ${email.timestamp} 
-                                            <button class="unread">Unread</button>
-                                            <button class="archive">Archive</button>`;
-                } else if (mailbox === 'sent'){
-                    mail.innerHTML = `To "${email.recipients}" subject ${email.subject} on ${email.timestamp}`;
-                } else if (mailbox === 'archive'){
-                    mail.innerHTML = `From "${email.sender}" subject ${email.subject} on ${email.timestamp} 
-                                            <button class="unarchive">Unarchive</button>`
-                }
-                if (email.read) {
-                    mail.style.backgroundColor = 'gray'
-                }
+      if (mailbox === 'inbox') {
+      var mail = mail_template({
+            unread_button: true,
+          archive_class: "archive btn btn-primary",
+          archive_title: "Archive",
+          read:email.read,
+          sender: email.sender,
+          timestamp:email.timestamp,
+          title:email.subject,
+      }) } else if (mailbox === 'sent'){
+          var mail = mail_template({
+              unread_button: false,
+        //      archive_class:false,
+              read:email.read,
+          sender: email.recipients,
+          timestamp:email.timestamp,
+          title:email.subject
+      })
+      } else if (mailbox === 'archive'){
+          var mail = mail_template({
+            unread_button: true,
+         archive_class: "unarchive btn btn-primary",
+          archive_title: "Unarchive",
+              read:email.read,
+          sender: email.sender,
+          timestamp:email.timestamp,
+          title:email.subject,
+      })
+      }
+      const element = document.createElement('div');
+      element.className = 'mail'
+element.innerHTML = mail;
+    element.dataset.id = email.id
                 // Add mail to DOM
-                document.querySelector('#emails-view').append(mail);
+      document.querySelector('#emails-view').append(element);
   }
 
 }
